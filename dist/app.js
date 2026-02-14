@@ -14,6 +14,7 @@ const auth_middleware_1 = require("./modules/auth/auth.middleware");
 const response_1 = require("./shared/utils/response");
 const reminder_job_1 = require("./jobs/reminder.job");
 const database_1 = require("./config/database");
+const scheduler_1 = require("./scheduler");
 // Route imports
 const auth_routes_1 = __importDefault(require("./modules/auth/auth.routes"));
 const user_routes_1 = __importDefault(require("./modules/users/user.routes"));
@@ -33,12 +34,20 @@ app.use(requestLogger_1.requestLogger);
 app.use('/api', rateLimiter_1.globalLimiter);
 // ── Health check (basic — always returns 200 if process is alive) ──
 app.get('/health', (_req, res) => {
+    const scheduler = (0, scheduler_1.getSchedulerStatus)();
     (0, response_1.sendSuccess)(res, {
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: `${Math.floor(process.uptime())}s`,
         environment: process.env.NODE_ENV || 'development',
         version: '1.0.0',
+        scheduler: {
+            enabled: scheduler.enabled,
+            running: scheduler.running,
+            activeJobs: scheduler.activeJobs,
+            registeredJobs: scheduler.registeredJobs,
+            instanceId: scheduler.instanceId,
+        }
     });
 });
 // ── Readiness check (deep — verifies DB connection) ──
