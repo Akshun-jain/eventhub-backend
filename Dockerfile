@@ -1,16 +1,14 @@
-FROM node:20-alpine
+FROM node:20
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --include=dev
+RUN npm install
 
 COPY . .
 
-RUN npx tsc
-
-RUN npm prune --omit=dev
+RUN npm run build
 
 EXPOSE 3000
 
