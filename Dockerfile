@@ -1,23 +1,22 @@
-# Use official Node.js image
 FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install ALL deps (including dev for build)
+RUN npm install --include=dev
 
-# Copy source code
+# Copy source
 COPY . .
 
 # Build TypeScript
-RUN npm run build
+RUN npx tsc
 
-# Expose port (Railway provides PORT env)
+# Remove dev dependencies to keep image small
+RUN npm prune --omit=dev
+
 EXPOSE 3000
 
-# Start the app
-CMD ["npm", "start"]
+CMD ["node", "dist/server.js"]
